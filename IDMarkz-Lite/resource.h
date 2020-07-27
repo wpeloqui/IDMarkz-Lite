@@ -13,6 +13,7 @@
 #define IDC_IDMARKZLITE                 109
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG_IDMARKZ_LITE         129
+#define IDD_MAIN_DLG                    129
 #define IDC_BUTTON_BROWSE               1000
 #define IDC_RADIO_LOCATION              1001
 #define IDC_RADIO_SELECT_LOCATION       1002
