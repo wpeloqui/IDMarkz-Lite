@@ -24,7 +24,6 @@
 #define IDC_CHECK_LO_RES_LINK           1008
 #define IDC_CHECK_EXPLORER              1009
 #define IDC_CHECK_DEFAULT_APP           1010
-#define IDC_BUTTON_OPEN                 1011
 #define ID_FILE_OPEN                    32771
 #define ID_FILE_CLOSE                   32772
 #define ID_FILE_EXPORTIDML              32773
@@ -42,7 +41,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
