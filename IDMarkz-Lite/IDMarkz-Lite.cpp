@@ -1,223 +1,162 @@
-// IDMarkz-Lite.cpp : Defines the entry point for the application.
+
+// IDMarkz-Lite.cpp : Defines the class behaviors for the application.
 //
 
+#include "pch.h"
 #include "framework.h"
+#include "afxwinappex.h"
+#include "afxdialogex.h"
 #include "IDMarkz-Lite.h"
-#include "Resource.h"
+#include "MainFrm.h"
 
-#define MAX_LOADSTRING 100
+#include "IDMarkz-LiteDoc.h"
+#include "IDMarkz-LiteView.h"
 
-// Global Variables:
-HINSTANCE hInst;                                // current instance
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
-// Forward declarations of functions included in this code module:
 
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    Main(HWND, UINT, WPARAM, LPARAM);
+// CIDMarkzLiteApp
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+BEGIN_MESSAGE_MAP(CIDMarkzLiteApp, CWinApp)
+	ON_COMMAND(ID_APP_ABOUT, &CIDMarkzLiteApp::OnAppAbout)
+	// Standard file based document commands
+	ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
+END_MESSAGE_MAP()
+
+
+// CIDMarkzLiteApp construction
+
+CIDMarkzLiteApp::CIDMarkzLiteApp() noexcept
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+	// TODO: replace application ID string below with unique ID string; recommended
+	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
+	SetAppID(_T("IDMarkzLite.AppID.NoVersion"));
 
-    // TODO: Place code here.
-
-    // Initialize global strings
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_IDMARKZLITE, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
-
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
-
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_IDMARKZLITE));
-
-    MSG msg;
-
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-
-    return (int) msg.wParam;
+	// TODO: add construction code here,
+	// Place all significant initialization in InitInstance
 }
 
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
+// The one and only CIDMarkzLiteApp object
 
-ATOM MyRegisterClass(HINSTANCE hInstance)
+CIDMarkzLiteApp theApp;
+
+
+// CIDMarkzLiteApp initialization
+
+BOOL CIDMarkzLiteApp::InitInstance()
 {
-    WNDCLASSEXW wcex;
+	CWinApp::InitInstance();
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_IDMARKZLITE));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_IDMARKZLITE);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	// Initialize OLE libraries
+	if (!AfxOleInit())
+	{
+		AfxMessageBox(IDP_OLE_INIT_FAILED);
+		return FALSE;
+	}
 
-    return RegisterClassExW(&wcex);
+	AfxEnableControlContainer();
+
+	EnableTaskbarInteraction(FALSE);
+
+	// AfxInitRichEdit2() is required to use RichEdit control
+	// AfxInitRichEdit2();
+
+	// Standard initialization
+	// If you are not using these features and wish to reduce the size
+	// of your final executable, you should remove from the following
+	// the specific initialization routines you do not need
+	// Change the registry key under which our settings are stored
+	// TODO: You should modify this string to be something appropriate
+	// such as the name of your company or organization
+	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
+
+
+	// Register the application's document templates.  Document templates
+	//  serve as the connection between documents, frame windows and views
+	CSingleDocTemplate* pDocTemplate;
+	pDocTemplate = new CSingleDocTemplate(
+		IDR_MAINFRAME,
+		RUNTIME_CLASS(CIDMarkzLiteDoc),
+		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CIDMarkzLiteView));
+	if (!pDocTemplate)
+		return FALSE;
+	AddDocTemplate(pDocTemplate);
+
+
+	// Parse command line for standard shell commands, DDE, file open
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
+
+
+
+	// Dispatch commands specified on the command line.  Will return FALSE if
+	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	if (!ProcessShellCommand(cmdInfo))
+		return FALSE;
+
+	// The one and only window has been initialized, so show and update it
+	m_pMainWnd->ShowWindow(SW_SHOW);
+	m_pMainWnd->UpdateWindow();
+	return TRUE;
 }
 
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+int CIDMarkzLiteApp::ExitInstance()
 {
-   hInst = hInstance; // Store instance handle in our global variable
+	//TODO: handle additional resources you may have added
+	AfxOleTerm(FALSE);
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
+	return CWinApp::ExitInstance();
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE: Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
+// CIDMarkzLiteApp message handlers
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+
+// CAboutDlg dialog used for App About
+
+class CAboutDlg : public CDialogEx
 {
-    switch (message)
-    {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-                case IDM_ABOUT:
-                    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                    break;
+public:
+	CAboutDlg() noexcept;
 
-                case ID_FILE_OPEN:
-                    DialogBox(hInst, MAKEINTRESOURCE(IDD_MAIN_DLG), hWnd, Main);
-                    break;
+// Dialog Data
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_ABOUTBOX };
+#endif
 
-                case IDM_EXIT:
-                    DestroyWindow(hWnd);
-                    break;
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-                default:
-                    return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
+// Implementation
+protected:
+	DECLARE_MESSAGE_MAP()
+};
 
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
+CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
+{
 }
 
-// Message handler for about box.
-
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
+	CDialogEx::DoDataExchange(pDX);
 }
 
-// Message handler for Main box.
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+END_MESSAGE_MAP()
 
-INT_PTR CALLBACK Main(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+// App command to run the dialog
+void CIDMarkzLiteApp::OnAppAbout()
 {
-    UNREFERENCED_PARAMETER(lParam);
-
-    switch (message)
-    {
-        case WM_INITDIALOG:
-
-            return (INT_PTR)TRUE;
-
-        case WM_COMMAND:
-
-            if (LOWORD(wParam) == IDC_RADIO_LOCATION)
-            {
-                return (INT_PTR)TRUE;
-            }
-
-            break;
-
-            if (LOWORD(wParam) == IDC_RADIO_SELECT_LOCATION)
-            {
-                return (INT_PTR)TRUE;
-            }
-
-            break;
-    }
-    return (INT_PTR)FALSE;
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
 }
+
+// CIDMarkzLiteApp message handlers
+
+
+
