@@ -1,2 +1,7 @@
-﻿  IDMarkz-Lite.cpp
+﻿  CDialogMain.cpp
+  IDMarkz-Lite.cpp
+  IDMarkz-LiteDoc.cpp
+  IDMarkz-LiteView.cpp
+  MainFrm.cpp
+  Generating Code...
   IDMarkz-Lite.vcxproj -> D:\Sandbox\Visual Studio\IDMarkz-Lite\Debug\IDMarkz-Lite.exe
